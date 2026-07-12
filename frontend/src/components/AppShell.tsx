@@ -11,17 +11,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { isAuthenticated, isLoaded } = useProfile()
-  const isLogin = pathname === "/login"
+  const isAuthPage = pathname === "/login" || pathname === "/register"
 
   useEffect(() => {
     if (!isLoaded) return
-    if (!isLogin && !isAuthenticated) {
+    if (!isAuthPage && !isAuthenticated) {
       router.replace("/login")
     }
-    if (isLogin && isAuthenticated) {
+    if (isAuthPage && isAuthenticated) {
       router.replace("/dashboard")
     }
-  }, [isLoaded, isLogin, isAuthenticated, router])
+  }, [isLoaded, isAuthPage, isAuthenticated, router])
 
   if (!isLoaded) {
     return (
@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (isLogin) {
+  if (isAuthPage) {
     return <>{children}</>
   }
 

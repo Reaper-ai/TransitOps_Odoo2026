@@ -2,16 +2,31 @@
 
 import { Button } from "@/components/Button"
 import { Input } from "@/components/Input"
-import { ApiError } from "@/lib/api"
-import { useProfile } from "@/lib/ProfileContext"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/Select"
+import { ApiError, registerRequest } from "@/lib/api"
 import { Logo } from "../../../public/Logo"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { FormEvent, useState } from "react"
 
-export default function LoginPage() {
-  const { login } = useProfile()
-  const [email, setEmail] = useState("manager@transitops.com")
-  const [password, setPassword] = useState("password123")
+const REGISTER_ROLES = [
+  "Fleet Manager",
+  "Driver",
+  "Safety Officer",
+  "Financial Analyst",
+] as const
+
+export default function RegisterPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [role, setRole] = useState<string>(REGISTER_ROLES[0])
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -20,10 +35,10 @@ export default function LoginPage() {
     setError(null)
     setSubmitting(true)
     try {
-      await login(email, password)
-      window.location.href = "/dashboard"
+      await registerRequest(email, password, role)
+      router.push("/login")
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "Login failed")
+      setError(err instanceof ApiError ? err.detail : "Registration failed")
     } finally {
       setSubmitting(false)
     }
@@ -38,10 +53,10 @@ export default function LoginPage() {
           </span>
           <div className="text-center">
             <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
-              TransitOps
+              Create account
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              Sign in with your backend account
+              Register a new TransitOps user
             </p>
           </div>
         </div>
@@ -55,6 +70,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
               required
             />
           </div>
@@ -66,8 +82,27 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              minLength={6}
               required
             />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm text-gray-700 dark:text-gray-300">
+              Role
+            </label>
+            <Select value={role} onValueChange={setRole}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                {REGISTER_ROLES.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           {error && (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400">
@@ -75,17 +110,17 @@ export default function LoginPage() {
             </p>
           )}
           <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "Signing in..." : "Sign in"}
+            {submitting ? "Creating account..." : "Create account"}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500">
-          Don&apos;t have an account?{" "}
+          Already have an account?{" "}
           <Link
-            href="/register"
+            href="/login"
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
           >
-            Create account
+            Sign in
           </Link>
         </p>
       </div>

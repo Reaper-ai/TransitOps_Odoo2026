@@ -119,3 +119,19 @@ export async function loginRequest(email: string, password: string) {
     auth: false,
   })
 }
+
+export async function registerRequest(
+  email: string,
+  password: string,
+  role: string,
+) {
+  return apiRequest<{
+    message: string
+    email: string
+    role: string
+  }>("/auth/register", {
+    method: "POST",
+    body: { email, password, role },
+    auth: false,
+  })
+}
