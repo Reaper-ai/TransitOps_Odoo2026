@@ -59,6 +59,10 @@ export default function TripsPage() {
   const [showForm, setShowForm] = useState(false)
   const [odometer, setOdometer] = useState("")
   const [completeId, setCompleteId] = useState<number | null>(null)
+  const [sourceFilter, setSourceFilter] = useState("All")
+  const [destinationFilter, setDestinationFilter] = useState("All")
+  const [vehicleFilter, setVehicleFilter] = useState("All")
+  const [driverFilter, setDriverFilter] = useState("All")
   const [form, setForm] = useState({
     source_name: "",
     destination_name: "",
@@ -101,6 +105,51 @@ export default function TripsPage() {
       (d) => d.status === "Available" && d.license_expiry_date > today,
     )
   }, [drivers])
+
+  const sourceOptions = useMemo(
+    () =>
+      Array.from(new Set(trips.map((t) => t.source_name))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [trips],
+  )
+  const destinationOptions = useMemo(
+    () =>
+      Array.from(new Set(trips.map((t) => t.destination_name))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [trips],
+  )
+  const vehicleOptions = useMemo(
+    () =>
+      Array.from(new Set(trips.map((t) => t.vehicle_reg))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [trips],
+  )
+  const driverOptions = useMemo(
+    () =>
+      Array.from(new Set(trips.map((t) => t.driver_license))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [trips],
+  )
+
+  const filteredTrips = useMemo(() => {
+    return trips.filter((t) => {
+      if (sourceFilter !== "All" && t.source_name !== sourceFilter) return false
+      if (
+        destinationFilter !== "All" &&
+        t.destination_name !== destinationFilter
+      )
+        return false
+      if (vehicleFilter !== "All" && t.vehicle_reg !== vehicleFilter)
+        return false
+      if (driverFilter !== "All" && t.driver_license !== driverFilter)
+        return false
+      return true
+    })
+  }, [trips, sourceFilter, destinationFilter, vehicleFilter, driverFilter])
 
   const selectedVehicle = vehicles.find(
     (v) => v.registration_number === form.vehicle_reg,
@@ -382,6 +431,79 @@ export default function TripsPage() {
         </div>
       )}
 
+      <div className="mb-6 grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-white p-4 md:grid-cols-2 lg:grid-cols-4 dark:border-gray-800 dark:bg-gray-950">
+        <div>
+          <label className="mb-2 block text-sm font-medium">Source</label>
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="All sources" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              {sourceOptions.map((name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium">Destination</label>
+          <Select
+            value={destinationFilter}
+            onValueChange={setDestinationFilter}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All destinations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              {destinationOptions.map((name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium">Vehicle</label>
+          <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="All vehicles" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              {vehicleOptions.map((reg) => (
+                <SelectItem key={reg} value={reg}>
+                  {reg}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium">Driver</label>
+          <Select value={driverFilter} onValueChange={setDriverFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="All drivers" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              {driverOptions.map((license) => {
+                const driver = drivers.find((d) => d.license_number === license)
+                return (
+                  <SelectItem key={license} value={license}>
+                    {driver ? `${driver.name} (${license})` : license}
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
         <Table>
           <TableHead>
@@ -396,14 +518,14 @@ export default function TripsPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {trips.length === 0 ? (
+            {filteredTrips.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center">
                   No trips found
                 </TableCell>
               </TableRow>
             ) : (
-              trips.map((t) => (
+              filteredTrips.map((t) => (
                 <TableRow key={t.id}>
                   <TableCell className="font-medium">#{t.id}</TableCell>
                   <TableCell>
