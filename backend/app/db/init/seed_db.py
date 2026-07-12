@@ -9,7 +9,7 @@ load_dotenv()
 # Fallback safely to current working folder if .env isn't set yet
 DB_PATH = os.getenv("DB_PATH", "transitops.db")
 
-JSON_PATH = "dummy_data.json"
+JSON_PATH = os.getenv("JSON_PATH", "seed_data.json")
 
 def seed_database():
     if not os.path.exists(JSON_PATH):

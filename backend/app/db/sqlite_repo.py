@@ -2,7 +2,7 @@
 import os
 import sqlite3
 from typing import List, Dict, Any, Optional
-from base import BaseRepository
+from .base import BaseRepository
 
 from dotenv import load_dotenv
 # Load the file directly from the execution path context
@@ -222,5 +222,88 @@ class SQLiteRepository(BaseRepository):
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("UPDATE trips SET status = ? WHERE id = ?", (status, trip_id))
+            conn.commit()
+            return cursor.rowcount > 0
+        
+    # Add these methods inside the SQLiteRepository class in backend/app/db/sqlite_repo.py
+
+    # ==========================================
+    # ADDITIONAL VEHICLE / DRIVER READS
+    # ==========================================
+    def get_all_vehicles(self) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM vehicles")
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_all_drivers(self) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM drivers")
+            return [dict(row) for row in cursor.fetchall()]
+
+    # ==========================================
+    # ADVANCED TRIP FILTERS
+    # ==========================================
+    def get_all_trips(self) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM trips")
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_trips_by_driver(self, license_number: str) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM trips WHERE driver_license = ?", (license_number,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_trips_by_vehicle(self, registration_number: str) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM trips WHERE vehicle_reg = ?", (registration_number,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_trips_by_source(self, source_name: str) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM trips WHERE source_name = ?", (source_name,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_trips_by_destination(self, destination_name: str) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM trips WHERE destination_name = ?", (destination_name,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    # ==========================================
+    # MAINTENANCE LOG READS
+    # ==========================================
+    def get_all_maintenance_logs(self) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM maintenance_logs")
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_maintenance_logs_by_vehicle(self, registration_number: str) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM maintenance_logs WHERE vehicle_reg = ?", (registration_number,))
+            return [dict(row) for row in cursor.fetchall()]
+        
+    def update_vehicle_status(self, registration_number: str, status: str) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE vehicles SET status = ? WHERE registration_number = ?
+            """, (status, registration_number))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def update_driver_status(self, license_number: str, status: str) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE drivers SET status = ? WHERE license_number = ?
+            """, (status, license_number))
             conn.commit()
             return cursor.rowcount > 0
