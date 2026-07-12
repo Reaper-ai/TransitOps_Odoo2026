@@ -7,9 +7,12 @@ import { useProfile } from "@/lib/ProfileContext"
 import { Logo } from "../../../public/Logo"
 import Link from "next/link"
 import { FormEvent, useState } from "react"
+import { useTheme } from "next-themes"
+import { Moon, Sun, Monitor } from "lucide-react"
 
 export default function LoginPage() {
   const { login } = useProfile()
+  const { theme, setTheme } = useTheme()
   const [email, setEmail] = useState("manager@transitops.com")
   const [password, setPassword] = useState("password123")
   const [error, setError] = useState<string | null>(null)
@@ -33,6 +36,21 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-925">
         <div className="mb-8 flex flex-col items-center gap-3">
+          <div className="flex w-full justify-end">
+            <button
+              onClick={() => {
+                if (theme === "light") setTheme("dark")
+                else if (theme === "dark") setTheme("system")
+                else setTheme("light")
+              }}
+              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              title="Toggle theme"
+            >
+              {theme === "light" && <Moon className="size-5" />}
+              {theme === "dark" && <Sun className="size-5" />}
+              {theme === "system" && <Monitor className="size-5" />}
+            </button>
+          </div>
           <span className="flex size-12 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
             <Logo className="size-7" />
           </span>
