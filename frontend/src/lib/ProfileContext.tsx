@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
 import { getAccessibleRoutes, getRoutePermission } from "./rbacConfig"
 
-export type Role = "Admin" | "Manager" | "Auditor" | "Viewer"
+export type Role = "Admin" | "FleetManager" | "Dispatcher" | "SafetyOfficer" | "FinancialAnalyst"
 
 export interface Profile {
   id: string
