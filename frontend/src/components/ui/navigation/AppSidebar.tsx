@@ -16,87 +16,85 @@ import {
 } from "@/components/Sidebar"
 import { cx, focusRing } from "@/lib/utils"
 import { RiArrowDownSFill } from "@remixicon/react"
-import { BookText, House, PackageSearch } from "lucide-react"
+import { Gauge, Truck, PersonStanding, Route, Wrench, Fuel, ChartColumn, Settings } from "lucide-react"
 import * as React from "react"
 import { Logo } from "../../../../public/Logo"
 import { UserProfile } from "./UserProfile"
-
-const navigation = [
-  {
-    name: "Home",
-    href: "#",
-    icon: House,
-    notifications: false,
-    active: false,
-  },
-  {
-    name: "Inbox",
-    href: "#",
-    icon: PackageSearch,
-    notifications: 2,
-    active: false,
-  },
-] as const
+import { useProfile } from "@/lib/ProfileContext"
 
 const navigation2 = [
   {
-    name: "Sales",
+    name: "Dashboard",
     href: "#",
-    icon: BookText,
-    children: [
-      {
-        name: "Quotes",
-        href: "#",
-        active: true,
-      },
-      {
-        name: "Orders",
-        href: "#",
-        active: false,
-      },
-      {
-        name: "Insights & Reports",
-        href: "#",
-        active: false,
-      },
-    ],
+    icon: Gauge,
+    active: false
   },
   {
-    name: "Products",
+    name: "Fleet",
     href: "#",
-    icon: PackageSearch,
-    children: [
-      {
-        name: "Items",
-        href: "#",
-        active: false,
-      },
-      {
-        name: "Variants",
-        href: "#",
-        active: false,
-      },
-      {
-        name: "Suppliers",
-        href: "#",
-        active: false,
-      },
-    ],
+    icon: Truck,
+    active: false
+  },
+  {
+    name: "Drivers",
+    href: "#",
+    icon: PersonStanding,
+    active: false
+  },
+  {
+    name: "Trips",
+    href: "#",
+    icon: Route,
+    active: false
+  },
+  {
+    name: "Maintenance",
+    href: "#",
+    icon: Wrench,
+    active: false
+  },
+  {
+    name: "Fuel and Expenses",
+    href: "#",
+    icon: Fuel,
+    active: false
+  },
+  {
+    name: "Analytics",
+    href: "#",
+    icon: ChartColumn,
+    active: false
+  },
+  {
+    name: "Settings",
+    href: "#",
+    icon: Settings,
+    active: false
   },
 ] as const
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [openMenus, setOpenMenus] = React.useState<string[]>([
-    navigation2[0].name,
-    navigation2[1].name,
-  ])
-  const toggleMenu = (name: string) => {
-    setOpenMenus((prev: string[]) =>
-      prev.includes(name)
-        ? prev.filter((item: string) => item !== name)
-        : [...prev, name],
-    )
-  }
+  const { currentProfile } = useProfile()
+
+  const filteredNavigation = React.useMemo(() => {
+    switch (currentProfile.role) {
+      case "Admin":
+        return navigation2
+      case "Manager":
+        return navigation2.filter((item) => item.name !== "Settings")
+      case "Auditor":
+        return navigation2.filter((item) =>
+          ["Dashboard", "Analytics", "Settings"].includes(item.name)
+        )
+      case "Viewer":
+        return navigation2.filter((item) =>
+          ["Dashboard", "Trips"].includes(item.name)
+        )
+      default:
+        return navigation2
+    }
+  }, [currentProfile.role])
+
   return (
     <Sidebar {...props} className="bg-gray-50 dark:bg-gray-925">
       <SidebarHeader className="px-3 py-4">
@@ -106,90 +104,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </span>
           <div>
             <span className="block text-sm font-semibold text-gray-900 dark:text-gray-50">
-              Innovex Systems
-            </span>
-            <span className="block text-xs text-gray-900 dark:text-gray-50">
-              Premium Starter Plan
+              TransitOps
             </span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <Input
-              type="search"
-              placeholder="Search items..."
-              className="[&>input]:sm:py-1.5"
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup className="pt-0">
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {navigation.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarLink
-                    href="#"
-                    isActive={item.active}
-                    icon={item.icon}
-                    notifications={item.notifications}
-                  >
-                    {item.name}
-                  </SidebarLink>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
         <div className="px-3">
           <Divider className="my-0 py-0" />
         </div>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-4">
-              {navigation2.map((item) => (
+              {filteredNavigation.map((item) => (
                 <SidebarMenuItem key={item.name}>
-                  {/* @CHRIS/SEV: discussion whether to componentize (-> state mgmt) */}
-                  <button
-                    onClick={() => toggleMenu(item.name)}
-                    className={cx(
-                      "flex w-full items-center justify-between gap-x-2.5 rounded-md p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50",
-                      focusRing,
-                    )}
+                  <SidebarLink
+                    href="#"
+                    isActive={item.active}
+                    icon={item.icon}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <item.icon
-                        className="size-[18px] shrink-0"
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </div>
-                    <RiArrowDownSFill
-                      className={cx(
-                        openMenus.includes(item.name)
-                          ? "rotate-0"
-                          : "-rotate-90",
-                        "size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600",
-                      )}
-                      aria-hidden="true"
-                    />
-                  </button>
-                  {item.children && openMenus.includes(item.name) && (
-                    <SidebarMenuSub>
-                      <div className="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800" />
-                      {item.children.map((child) => (
-                        <SidebarMenuItem key={child.name}>
-                          <SidebarSubLink
-                            href={child.href}
-                            isActive={child.active}
-                          >
-                            {child.name}
-                          </SidebarSubLink>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
+                    {item.name}
+                  </SidebarLink>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

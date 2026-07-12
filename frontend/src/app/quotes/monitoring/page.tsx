@@ -1,4 +1,5 @@
 "use client"
+import * as React from "react"
 import { BarChart } from "@/components/BarChart"
 import { Button } from "@/components/Button"
 import { ComboChart } from "@/components/ComboChart"
@@ -17,10 +18,30 @@ import {
   SelectValue,
 } from "@/components/Select"
 import { dataChart, dataChart2, dataChart3, dataChart4 } from "@/data/data"
-import { formatters } from "@/lib/utils"
-import { SlidersHorizontal } from "lucide-react"
+import { formatters, cx } from "@/lib/utils"
+import { SlidersHorizontal, Lock } from "lucide-react"
+import { useProfile } from "@/lib/ProfileContext"
 
 export default function Monitoring() {
+  const { currentProfile } = useProfile()
+
+  const isViewer = currentProfile.role === "Viewer"
+  const isAuditor = currentProfile.role === "Auditor"
+
+  if (isViewer) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 px-6 text-center border-t border-gray-200 dark:border-gray-800">
+        <span className="flex size-14 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 mb-4">
+          <Lock className="size-6" />
+        </span>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Access Denied</h2>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm">
+          The Monitoring dashboard is restricted to Admin, Manager, and Auditor roles. Please switch your profile to access this content.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <section aria-label="App Monitoring">
       <div className="flex flex-col items-center justify-between gap-2 p-6 sm:flex-row">
@@ -47,6 +68,7 @@ export default function Monitoring() {
         </Button>
       </div>
       <dl className="grid grid-cols-1 gap-x-14 gap-y-10 border-t border-gray-200 p-6 md:grid-cols-2 dark:border-gray-800">
+        {/* Chart 1: Inherent Risk */}
         <div className="flex flex-col justify-between p-0">
           <div>
             <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
@@ -79,7 +101,9 @@ export default function Monitoring() {
             className="mt-4 h-60 md:hidden"
           />
         </div>
-        <div className="flex flex-col justify-between">
+
+        {/* Chart 2: Quote-to-Deal ratio (Financial - restricted to Auditors) */}
+        <div className="relative flex flex-col justify-between">
           <div>
             <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
               Quote-to-Deal ratio
@@ -88,41 +112,54 @@ export default function Monitoring() {
               Number of quotes compared to total deal size for given month
             </dd>
           </div>
-          <ComboChart
-            data={dataChart2}
-            index="date"
-            enableBiaxial={true}
-            barSeries={{
-              categories: ["Quotes"],
-              yAxisLabel: "Number of quotes / Deal size ($)",
-              valueFormatter: (value) =>
-                formatters.currency({ number: value, maxFractionDigits: 0 }),
-            }}
-            lineSeries={{
-              categories: ["Total deal size"],
-              colors: ["lightGray"],
-              showYAxis: false,
-            }}
-            customTooltip={CustomTooltip2}
-            className="mt-4 hidden h-60 md:block"
-          />
-          <ComboChart
-            data={dataChart2}
-            index="date"
-            enableBiaxial={true}
-            barSeries={{
-              categories: ["Quotes"],
-              showYAxis: false,
-            }}
-            lineSeries={{
-              categories: ["Total deal size"],
-              colors: ["lightGray"],
-              showYAxis: false,
-            }}
-            customTooltip={CustomTooltip2}
-            className="mt-4 h-60 md:hidden"
-          />
+          <div className={cx(isAuditor && "blur-[3px] select-none pointer-events-none")}>
+            <ComboChart
+              data={dataChart2}
+              index="date"
+              enableBiaxial={true}
+              barSeries={{
+                categories: ["Quotes"],
+                yAxisLabel: "Number of quotes / Deal size ($)",
+                valueFormatter: (value) =>
+                  formatters.currency({ number: value, maxFractionDigits: 0 }),
+              }}
+              lineSeries={{
+                categories: ["Total deal size"],
+                colors: ["lightGray"],
+                showYAxis: false,
+              }}
+              customTooltip={CustomTooltip2}
+              className="mt-4 hidden h-60 md:block"
+            />
+            <ComboChart
+              data={dataChart2}
+              index="date"
+              enableBiaxial={true}
+              barSeries={{
+                categories: ["Quotes"],
+                showYAxis: false,
+              }}
+              lineSeries={{
+                categories: ["Total deal size"],
+                colors: ["lightGray"],
+                showYAxis: false,
+              }}
+              customTooltip={CustomTooltip2}
+              className="mt-4 h-60 md:hidden"
+            />
+          </div>
+          {isAuditor && (
+            <div className="absolute inset-x-0 bottom-0 top-12 z-10 flex flex-col items-center justify-center bg-white/60 dark:bg-gray-950/60 backdrop-blur-[2px] rounded-lg border border-gray-100 dark:border-gray-800/50">
+              <Lock className="size-6 text-gray-400 dark:text-gray-600 mb-2" />
+              <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">Restricted Data</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-[220px] text-center">
+                Financial metrics are hidden for the Auditor role.
+              </span>
+            </div>
+          )}
         </div>
+
+        {/* Chart 3: ESG impact */}
         <div className="flex flex-col justify-between">
           <div>
             <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">
@@ -156,6 +193,8 @@ export default function Monitoring() {
             className="mt-4 h-60 md:hidden"
           />
         </div>
+
+        {/* Chart 4: Bidder density */}
         <div className="flex flex-col justify-between">
           <div>
             <dt className="text-sm font-semibold text-gray-900 dark:text-gray-50">

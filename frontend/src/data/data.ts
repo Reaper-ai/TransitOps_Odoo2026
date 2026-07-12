@@ -29,12 +29,12 @@ export const quotes: Region[] = [
         status: "Drafted",
         assigned: [
           {
-            name: "Emily Smith",
-            initials: "E",
+            name: "Hermione Weasley",
+            initials: "HW",
           },
           {
-            name: "Max Warmer",
-            initials: "M",
+            name: "Harry Granger",
+            initials: "HG",
           },
           {
             name: "Victoria Steep",
@@ -51,7 +51,7 @@ export const quotes: Region[] = [
         assigned: [
           {
             name: "Emma Stone",
-            initials: "E",
+            initials: "ES",
           },
           {
             name: "Chris Bold",
@@ -67,8 +67,8 @@ export const quotes: Region[] = [
         status: "Sent",
         assigned: [
           {
-            name: "Emma Stephcorn",
-            initials: "E",
+            name: "Hermione Weasley",
+            initials: "HW",
           },
           {
             name: "Chris Bold",
@@ -119,7 +119,7 @@ export const quotes: Region[] = [
         assigned: [
           {
             name: "Emma Stone",
-            initials: "E",
+            initials: "ES",
           },
         ],
       },
@@ -140,8 +140,8 @@ export const quotes: Region[] = [
             initials: "L",
           },
           {
-            name: "Sara Brick",
-            initials: "S",
+            name: "Hermione Weasley",
+            initials: "HW",
           },
         ],
       },
@@ -153,8 +153,8 @@ export const quotes: Region[] = [
         status: "Drafted",
         assigned: [
           {
-            name: "Jordan Afolter",
-            initials: "J",
+            name: "Harry Granger",
+            initials: "HG",
           },
           {
             name: "Corinna Bridge",
@@ -174,8 +174,8 @@ export const quotes: Region[] = [
             initials: "L",
           },
           {
-            name: "Jordan Corner",
-            initials: "J",
+            name: "Harry Granger",
+            initials: "HG",
           },
         ],
       },
@@ -236,7 +236,7 @@ export const quotes: Region[] = [
         assigned: [
           {
             name: "Charlie Anuk",
-            initials: "C",
+            initials: "CA",
           },
         ],
       },
@@ -249,7 +249,7 @@ export const quotes: Region[] = [
         assigned: [
           {
             name: "Charlie Anuk",
-            initials: "C",
+            initials: "CA",
           },
           {
             name: "Patrick Daller",
@@ -270,7 +270,7 @@ export const quotes: Region[] = [
           },
           {
             name: "Charlie Anuk",
-            initials: "C",
+            initials: "CA",
           },
         ],
       },
@@ -283,7 +283,7 @@ export const quotes: Region[] = [
         assigned: [
           {
             name: "Charlie Anuk",
-            initials: "C",
+            initials: "CA",
           },
         ],
       },
@@ -486,7 +486,7 @@ export const sections: Section[] = [
     progress: { current: 46, total: 46 },
     status: "complete",
     auditDates: [
-      { date: "Dec 10, 2023", auditor: "Max Duster" },
+      { date: "Dec 10, 2023", auditor: "Hermione Weasley" },
       { date: "Dec 12, 2023", auditor: "Emma Stone" },
     ],
     documents: [
@@ -502,7 +502,7 @@ export const sections: Section[] = [
     progress: { current: 32, total: 41 },
     status: "warning",
     auditDates: [
-      { date: "Jan 15, 2024", auditor: "Sarah Johnson" },
+      { date: "Jan 15, 2024", auditor: "Hermione Weasley" },
       { date: "Jan 20, 2024", auditor: "Mike Peters" },
     ],
     documents: [
@@ -518,7 +518,7 @@ export const sections: Section[] = [
     progress: { current: 21, total: 21 },
     status: "complete",
     auditDates: [
-      { date: "Feb 5, 2024", auditor: "Lisa Chen" },
+      { date: "Feb 5, 2024", auditor: "Harry Granger" },
       { date: "Feb 8, 2024", auditor: "Tom Wilson" },
     ],
     documents: [
@@ -534,7 +534,7 @@ export const sections: Section[] = [
     progress: { current: 21, total: 21 },
     status: "complete",
     auditDates: [
-      { date: "Mar 1, 2024", auditor: "Alex Kumar" },
+      { date: "Mar 1, 2024", auditor: "Hermione Weasley" },
       { date: "Mar 5, 2024", auditor: "Rachel Green" },
     ],
     documents: [
