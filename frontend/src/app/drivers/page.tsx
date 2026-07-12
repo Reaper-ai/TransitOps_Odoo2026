@@ -49,7 +49,7 @@ export default function DriversPage() {
   const fetchDrivers = async () => {
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/drivers`)
+      const response = await fetch(`${BACKEND_URL}/fleet/drivers`)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.detail || `Failed to fetch drivers (${response.status})`)
@@ -70,7 +70,7 @@ export default function DriversPage() {
 
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/drivers`, {
+      const response = await fetch(`${BACKEND_URL}/fleet/drivers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -103,7 +103,7 @@ export default function DriversPage() {
 
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/drivers/${licenseNum}`, {
+      const response = await fetch(`${BACKEND_URL}/fleet/drivers/${licenseNum}`, {
         method: "DELETE",
       })
       if (!response.ok) {

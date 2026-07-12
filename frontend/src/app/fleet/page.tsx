@@ -50,7 +50,7 @@ export default function FleetPage() {
   const fetchVehicles = async () => {
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/vehicles`)
+      const response = await fetch(`${BACKEND_URL}/fleet/vehicles`)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.detail || `Failed to fetch vehicles (${response.status})`)
@@ -71,7 +71,7 @@ export default function FleetPage() {
 
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/vehicles`, {
+      const response = await fetch(`${BACKEND_URL}/fleet/vehicles`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -104,7 +104,7 @@ export default function FleetPage() {
 
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/vehicles/${regNum}`, {
+      const response = await fetch(`${BACKEND_URL}/fleet/vehicles/${regNum}`, {
         method: "DELETE",
       })
       if (!response.ok) {
