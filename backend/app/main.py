@@ -1,7 +1,11 @@
 # backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from db.sqlite_repo import SQLiteRepository
+
+# Add these imports to your existing backend/app/main.py
+from app.modules.auth import router as auth_router
+from app.modules.destinations import router as dest_router
+from app.modules.fleet import router as fleet_router
 
 app = FastAPI(
     title="TransitOps API Platform",
@@ -18,8 +22,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global database interface instance injection point
-db = SQLiteRepository()
+app.include_router(auth_router)
+app.include_router(dest_router)
+app.include_router(fleet_router)
+
+
 
 @app.get("/")
 def read_root():

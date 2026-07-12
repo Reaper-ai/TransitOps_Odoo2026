@@ -129,3 +129,32 @@ class BaseRepository(ABC):
     def update_trip_status(self, trip_id: int, status: str) -> bool:
         """Updates the operational lifecycle state machine path of a specific trip."""
         pass
+
+    # Add these methods inside the BaseRepository class in backend/app/db/base.py
+
+    @abstractmethod
+    def get_all_vehicles(self) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_all_drivers(self) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_all_trips(self) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_trips_by_driver(self, license_number: str) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_trips_by_vehicle(self, registration_number: str) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_trips_by_source(self, source_name: str) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_trips_by_destination(self, destination_name: str) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_all_maintenance_logs(self) -> List[Dict[str, Any]]: pass
+
+    @abstractmethod
+    def get_maintenance_logs_by_vehicle(self, registration_number: str) -> List[Dict[str, Any]]: pass

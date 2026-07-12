@@ -3,8 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from app.core.security import SECRET_KEY, ALGORITHM
-from app.main import db  # Import global repository context mapping
-
+from app.db.session import db
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
