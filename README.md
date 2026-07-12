@@ -1,4 +1,4 @@
-# TransitOps Backend Platform
+# TransitOps Platform
 
 ## 🚀 Project Overview & Team
 
