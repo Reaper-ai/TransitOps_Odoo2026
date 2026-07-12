@@ -158,3 +158,15 @@ class BaseRepository(ABC):
 
     @abstractmethod
     def get_maintenance_logs_by_vehicle(self, registration_number: str) -> List[Dict[str, Any]]: pass
+
+    # Add these methods inside the BaseRepository class in backend/app/db/base.py
+
+    @abstractmethod
+    def update_vehicle_status(self, registration_number: str, status: str) -> bool:
+        """Quick-patch method to dynamically pivot a vehicle's operational state."""
+        pass
+
+    @abstractmethod
+    def update_driver_status(self, license_number: str, status: str) -> bool:
+        """Quick-patch method to dynamically pivot a driver's operational state."""
+        pass

@@ -66,3 +66,32 @@ class DriverUpdate(BaseModel):
 
 class DriverResponse(DriverCreate):
     pass
+
+# --- Trips ---
+class TripCreate(BaseModel):
+    source_name: str
+    destination_name: str
+    vehicle_reg: str
+    driver_license: str
+    cargo_weight: float = Field(..., gt=0)
+    planned_distance: float = Field(..., gt=0)
+    revenue: float = Field(..., gte=0)
+
+class TripResponse(TripCreate):
+    id: int
+    status: str
+
+# --- Maintenance ---
+class MaintenanceCreate(BaseModel):
+    vehicle_reg: str
+    description: str = Field(..., min_length=5)
+    cost: float = Field(..., gte=0)
+    start_date: str  # YYYY-MM-DD
+
+class MaintenanceClose(BaseModel):
+    end_date: str  # YYYY-MM-DD
+
+class MaintenanceResponse(MaintenanceCreate):
+    id: int
+    status: str
+    end_date: Optional[str] = None

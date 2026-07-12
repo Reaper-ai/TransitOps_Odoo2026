@@ -289,3 +289,21 @@ class SQLiteRepository(BaseRepository):
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM maintenance_logs WHERE vehicle_reg = ?", (registration_number,))
             return [dict(row) for row in cursor.fetchall()]
+        
+    def update_vehicle_status(self, registration_number: str, status: str) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE vehicles SET status = ? WHERE registration_number = ?
+            """, (status, registration_number))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def update_driver_status(self, license_number: str, status: str) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE drivers SET status = ? WHERE license_number = ?
+            """, (status, license_number))
+            conn.commit()
+            return cursor.rowcount > 0

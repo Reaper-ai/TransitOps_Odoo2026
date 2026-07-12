@@ -6,6 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.modules.auth import router as auth_router
 from app.modules.destinations import router as dest_router
 from app.modules.fleet import router as fleet_router
+# Add these imports at the top of backend/app/main.py
+from app.modules.trips import router as trips_router
+from app.modules.maintenance import router as maintenance_router
+
 
 app = FastAPI(
     title="TransitOps API Platform",
@@ -25,7 +29,8 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(dest_router)
 app.include_router(fleet_router)
-
+app.include_router(trips_router)
+app.include_router(maintenance_router)
 
 
 @app.get("/")
