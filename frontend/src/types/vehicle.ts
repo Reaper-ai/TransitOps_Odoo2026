@@ -1,32 +1,23 @@
-export type VehicleStatus = "Available" | "On trip" | "In shop" | "Retired"
+export type VehicleStatus = "Available" | "On Trip" | "In Shop" | "Retired"
 
-export type VehicleType = "Truck" | "Van" | "Pickup"
+export type VehicleType = string
 
 export interface Vehicle {
   registration_number: string
-  name: string
-  type: VehicleType
-  capacity: number
+  model: string
+  type: string
+  max_load_capacity: number
   odometer: number
   acquisition_cost: number
-  status: VehicleStatus
+  status: VehicleStatus | string
 }
 
 export interface VehicleCreate {
   registration_number: string
-  name: string
-  type: VehicleType
-  capacity: number
+  model: string
+  type: string
+  max_load_capacity: number
   odometer: number
   acquisition_cost: number
-  status: VehicleStatus
-}
-
-export interface VehicleUpdate {
-  name?: string
-  type?: VehicleType
-  capacity?: number
-  odometer?: number
-  acquisition_cost?: number
-  status?: VehicleStatus
+  status?: string
 }

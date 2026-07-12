@@ -1,89 +1,98 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from "react"
-import { getAccessibleRoutes, getRoutePermission } from "./rbacConfig"
-
-export type Role = "Admin" | "FleetManager" | "Dispatcher" | "SafetyOfficer" | "FinancialAnalyst"
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react"
+import {
+  clearAuthSession,
+  getStoredEmail,
+  getStoredRole,
+  getToken,
+  loginRequest,
+  setAuthSession,
+} from "@/lib/api"
 
 export interface Profile {
   id: string
   name: string
   email: string
   initials: string
-  role: Role
+  role: string
 }
 
-export const PROFILES: Profile[] = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@transitops.com",
-    initials: "A",
-    role: "Admin",
-  },
-  {
-    id: "2",
-    name: "Fleet Manager",
-    email: "fleetmanager@transitops.com",
-    initials: "FM",
-    role: "FleetManager",
-  },
-  {
-    id: "3",
-    name: "Dispatcher",
-    email: "dispatcher@transitops.com",
-    initials: "D",
-    role: "Dispatcher",
-  },
-  {
-    id: "4",
-    name: "Safety Officer",
-    email: "safety.officer@transitops.com",
-    initials: "SO",
-    role: "SafetyOfficer",
-  },
-  {
-    id: "5",
-    name: "Financial Analyst",
-    email: "financial.analyst@transitops.com",
-    initials: "FA",
-    role: "FinancialAnalyst",
-  },
-]
-
 interface ProfileContextType {
-  currentProfile: Profile
-  profiles: Profile[]
-  setCurrentProfile: (profile: Profile) => void
+  currentProfile: Profile | null
+  token: string | null
+  isAuthenticated: boolean
   isLoaded: boolean
+  login: (email: string, password: string) => Promise<void>
+  logout: () => void
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined)
 
+function profileFromSession(email: string, role: string): Profile {
+  const local = email.split("@")[0] || "User"
+  return {
+    id: email,
+    name: local,
+    email,
+    initials: local.slice(0, 2).toUpperCase(),
+    role,
+  }
+}
+
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
-  const [currentProfile, setCurrentProfileState] = useState<Profile>(PROFILES[0])
+  const [token, setToken] = useState<string | null>(null)
+  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    const savedProfileId = localStorage.getItem("active_profile_id")
-    if (savedProfileId) {
-      const found = PROFILES.find((p) => p.id === savedProfileId)
-      if (found) {
-        setCurrentProfileState(found)
-      }
+    const t = getToken()
+    const email = getStoredEmail()
+    const role = getStoredRole()
+    if (t && email && role) {
+      setToken(t)
+      setCurrentProfile(profileFromSession(email, role))
     }
     setIsLoaded(true)
   }, [])
 
-  const setCurrentProfile = (profile: Profile) => {
-    setCurrentProfileState(profile)
-    localStorage.setItem("active_profile_id", profile.id)
-  }
+  const login = useCallback(async (email: string, password: string) => {
+    const data = await loginRequest(email.trim(), password)
+    setAuthSession(data.access_token, data.role, email.trim())
+    setToken(data.access_token)
+    setCurrentProfile(profileFromSession(email.trim(), data.role))
+  }, [])
+
+  const logout = useCallback(() => {
+    clearAuthSession()
+    setToken(null)
+    setCurrentProfile(null)
+    if (typeof window !== "undefined") {
+      window.location.href = "/login"
+    }
+  }, [])
+
+  const value = useMemo(
+    () => ({
+      currentProfile,
+      token,
+      isAuthenticated: Boolean(token && currentProfile),
+      isLoaded,
+      login,
+      logout,
+    }),
+    [currentProfile, token, isLoaded, login, logout],
+  )
 
   return (
-    <ProfileContext.Provider value={{ currentProfile, profiles: PROFILES, setCurrentProfile, isLoaded }}>
-      {children}
-    </ProfileContext.Provider>
+    <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
   )
 }
 

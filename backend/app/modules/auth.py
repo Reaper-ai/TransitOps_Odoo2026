@@ -9,8 +9,6 @@ from fastapi.security import OAuth2PasswordRequestForm  # <-- ADD THIS IMPORT
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 @router.post("/login", response_model=Token)
-# Change payload from JSON to OAuth2PasswordRequestForm
-@router.post("/login", response_model=Token)
 def login(payload: OAuth2PasswordRequestForm = Depends()):
     # Swagger sends the email inside the 'username' field configuration
     user = db.get_user_by_email(payload.username)

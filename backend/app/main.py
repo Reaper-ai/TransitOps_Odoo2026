@@ -9,6 +9,8 @@ from app.modules.fleet import router as fleet_router
 # Add these imports at the top of backend/app/main.py
 from app.modules.trips import router as trips_router
 from app.modules.maintenance import router as maintenance_router
+from app.modules.finance import router as finance_router
+from app.modules.dashboard import router as dashboard_router
 
 
 app = FastAPI(
@@ -31,6 +33,8 @@ app.include_router(dest_router)
 app.include_router(fleet_router)
 app.include_router(trips_router)
 app.include_router(maintenance_router)
+app.include_router(finance_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/")

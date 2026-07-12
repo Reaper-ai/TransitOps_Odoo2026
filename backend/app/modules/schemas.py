@@ -95,3 +95,46 @@ class MaintenanceResponse(MaintenanceCreate):
     id: int
     status: str
     end_date: Optional[str] = None
+
+# --- Expenses / Finance ---
+class ExpenseCreate(BaseModel):
+    trip_id: int
+    type: str = Field(..., description="Fuel | Toll | Maintenance-Surge | Other")
+    liters: Optional[float] = None
+    cost: float = Field(..., gte=0)
+    date: str  # YYYY-MM-DD
+
+class ExpenseResponse(ExpenseCreate):
+    id: int
+
+# --- Dashboard Analytics ---
+class VehicleAnalytics(BaseModel):
+    registration_number: str
+    model: str
+    type: str
+    status: str
+    acquisition_cost: float
+    revenue: float
+    fuel_cost: float
+    maintenance_cost: float
+    operational_cost: float
+    fuel_liters: float
+    distance: float
+    fuel_efficiency: Optional[float] = None
+    roi: Optional[float] = None
+
+class DashboardKPIs(BaseModel):
+    active_vehicles: int
+    available_vehicles: int
+    in_shop_vehicles: int
+    retired_vehicles: int
+    active_trips: int
+    pending_trips: int
+    completed_trips: int
+    drivers_on_duty: int
+    available_drivers: int
+    fleet_utilization: float
+    overall_fuel_efficiency: Optional[float] = None
+    total_operational_cost: float
+    total_revenue: float
+    vehicles: List[VehicleAnalytics]

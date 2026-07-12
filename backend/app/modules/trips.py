@@ -82,3 +82,23 @@ def complete_active_transit(trip_id: int, final_odometer: float, current_user: d
     db.update_driver_status(target_trip["driver_license"], "Available")
     
     return {"message": "Trip completed successfully. Resources released back to active pools[cite: 1]."}
+
+
+@router.put("/{trip_id}/cancel")
+def cancel_active_transit(trip_id: int, current_user: dict = Depends(get_current_user)):
+    trips = db.get_all_trips()
+    target_trip = next((t for t in trips if t["id"] == trip_id), None)
+
+    if not target_trip:
+        raise HTTPException(status_code=404, detail="Trip record not found.")
+    if target_trip["status"] != "Dispatched":
+        raise HTTPException(
+            status_code=400,
+            detail="Only actively dispatched transits can be cancelled.",
+        )
+
+    db.update_trip_status(trip_id, "Cancelled")
+    db.update_vehicle_status(target_trip["vehicle_reg"], "Available")
+    db.update_driver_status(target_trip["driver_license"], "Available")
+
+    return {"message": "Trip cancelled. Vehicle and driver restored to Available."}

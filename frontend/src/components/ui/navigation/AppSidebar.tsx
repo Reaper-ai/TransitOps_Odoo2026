@@ -1,6 +1,5 @@
 "use client"
 import { Divider } from "@/components/Divider"
-import { Input } from "@/components/Input"
 import {
   Sidebar,
   SidebarContent,
@@ -11,13 +10,10 @@ import {
   SidebarLink,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarSubLink,
 } from "@/components/Sidebar"
-import { cx, focusRing } from "@/lib/utils"
-import { RiArrowDownSFill } from "@remixicon/react"
 import { Gauge, Truck, PersonStanding, Route, Wrench, Fuel, ChartColumn, Settings } from "lucide-react"
 import * as React from "react"
+import { usePathname } from "next/navigation"
 import { Logo } from "../../../../public/Logo"
 import { UserProfile } from "./UserProfile"
 import { useProfile } from "@/lib/ProfileContext"
@@ -84,12 +80,14 @@ const navigation2 = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { currentProfile } = useProfile()
+  const pathname = usePathname()
 
   const filteredNavigation = React.useMemo(() => {
-    return navigation2.filter((item) => 
-      hasRouteAccess(currentProfile.role, item.routeKey)
+    if (!currentProfile) return []
+    return navigation2.filter((item) =>
+      hasRouteAccess(currentProfile.role, item.routeKey),
     )
-  }, [currentProfile.role])
+  }, [currentProfile])
 
   return (
     <Sidebar {...props} className="bg-gray-50 dark:bg-gray-925">
@@ -111,12 +109,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-4">
+            <SidebarMenu className="space-y-1">
               {filteredNavigation.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarLink
                     href={item.href}
-                    isActive={item.active}
+                    isActive={pathname === item.href}
                     icon={item.icon}
                   >
                     {item.name}

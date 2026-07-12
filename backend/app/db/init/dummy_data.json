@@ -1,8 +1,9 @@
 {
   "users": [
-    { "email": "manager@transitops.com", "password_hash": "$2b$12$xyz...", "role": "Fleet Manager" },
-    { "email": "safety@transitops.com", "password_hash": "$2b$12$abc...", "role": "Safety Officer" },
-    { "email": "finance@transitops.com", "password_hash": "$2b$12$qwe...", "role": "Financial Analyst" }
+    { "email": "manager@transitops.com", "password_hash": "password123", "role": "Fleet Manager" },
+    { "email": "safety@transitops.com", "password_hash": "password123", "role": "Safety Officer" },
+    { "email": "finance@transitops.com", "password_hash": "password123", "role": "Financial Analyst" },
+    { "email": "admin@transitops.com", "password_hash": "password123", "role": "Admin" }
   ],
   "destinations": [
     { "name": "Warehouse Alpha", "region": "North" },

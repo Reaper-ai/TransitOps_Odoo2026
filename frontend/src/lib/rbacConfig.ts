@@ -16,7 +16,7 @@ export interface RoleConfig {
   permissions: RoutePermissions
 }
 
-// Configurable RBAC - modify these permissions to control access for each role
+/** Keys MUST match backend role strings exactly */
 export const RBAC_CONFIG: Record<string, RoleConfig> = {
   Admin: {
     name: "Admin",
@@ -31,25 +31,25 @@ export const RBAC_CONFIG: Record<string, RoleConfig> = {
       settings: "admin",
     },
   },
-  FleetManager: {
+  "Fleet Manager": {
     name: "Fleet Manager",
     permissions: {
       dashboard: "read_write",
       fleet: "read_write",
       drivers: "read_write",
-      trips: "no_access",
-      maintenance: "no_access",
-      fuelAndExpenses: "no_access",
-      analytics: "no_access",
-      settings: "no_access",
+      trips: "read_write",
+      maintenance: "read_write",
+      fuelAndExpenses: "read_write",
+      analytics: "read_write",
+      settings: "read_only",
     },
   },
-  Dispatcher: {
-    name: "Dispatcher",
+  Driver: {
+    name: "Driver",
     permissions: {
       dashboard: "read_write",
       fleet: "read_only",
-      drivers: "no_access",
+      drivers: "read_only",
       trips: "read_write",
       maintenance: "no_access",
       fuelAndExpenses: "no_access",
@@ -57,11 +57,11 @@ export const RBAC_CONFIG: Record<string, RoleConfig> = {
       settings: "no_access",
     },
   },
-  SafetyOfficer: {
-    name: "SafetyOfficer",
+  "Safety Officer": {
+    name: "Safety Officer",
     permissions: {
       dashboard: "read_only",
-      fleet: "no_access",
+      fleet: "read_only",
       drivers: "read_write",
       trips: "read_only",
       maintenance: "no_access",
@@ -70,13 +70,13 @@ export const RBAC_CONFIG: Record<string, RoleConfig> = {
       settings: "no_access",
     },
   },
-  FinancialAnalyst: {
-    name: "FinancialAnalyst",
+  "Financial Analyst": {
+    name: "Financial Analyst",
     permissions: {
       dashboard: "read_only",
       fleet: "read_only",
       drivers: "no_access",
-      trips: "no_access",
+      trips: "read_only",
       maintenance: "no_access",
       fuelAndExpenses: "read_write",
       analytics: "read_write",
@@ -85,26 +85,30 @@ export const RBAC_CONFIG: Record<string, RoleConfig> = {
   },
 }
 
-// Helper function to check if a role has access to a specific route
 export function hasRouteAccess(role: string, route: keyof RoutePermissions): boolean {
   const roleConfig = RBAC_CONFIG[role]
   if (!roleConfig) return false
-  const permission = roleConfig.permissions[route]
-  return permission !== "no_access"
+  return roleConfig.permissions[route] !== "no_access"
 }
 
-// Helper function to get permission level for a specific route
-export function getRoutePermission(role: string, route: keyof RoutePermissions): PermissionLevel {
+export function getRoutePermission(
+  role: string,
+  route: keyof RoutePermissions,
+): PermissionLevel {
   const roleConfig = RBAC_CONFIG[role]
   if (!roleConfig) return "no_access"
   return roleConfig.permissions[route]
 }
 
-// Helper function to get all accessible routes for a role
 export function getAccessibleRoutes(role: string): (keyof RoutePermissions)[] {
   const roleConfig = RBAC_CONFIG[role]
   if (!roleConfig) return []
   return Object.entries(roleConfig.permissions)
-    .filter(([_, permission]) => permission !== "no_access")
+    .filter(([, permission]) => permission !== "no_access")
     .map(([route]) => route as keyof RoutePermissions)
+}
+
+export function canWrite(role: string, route: keyof RoutePermissions): boolean {
+  const level = getRoutePermission(role, route)
+  return level === "read_write" || level === "admin"
 }

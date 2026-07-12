@@ -3,7 +3,13 @@
 import React, { useState, useEffect } from "react"
 import { Button } from "@/components/Button"
 import { Input } from "@/components/Input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/Select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/Select"
 import {
   Table,
   TableBody,
@@ -12,35 +18,45 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/Table"
-import { Driver, DriverStatus, LicenseCategory, DriverCreate } from "@/types/driver"
-import { BACKEND_URL } from "@/data/data"
+import { ApiError, apiRequest } from "@/lib/api"
 import { useProfile } from "@/lib/ProfileContext"
-import { getRoutePermission } from "@/lib/rbacConfig"
+import { canWrite } from "@/lib/rbacConfig"
+
+type DriverRow = {
+  license_number: string
+  name: string
+  license_category: string
+  license_expiry_date: string
+  contact_number: string
+  safety_score: number
+  status: string
+}
+
+const emptyForm = {
+  license_number: "",
+  name: "",
+  license_category: "Light Transport",
+  license_expiry_date: "",
+  contact_number: "",
+  safety_score: 100,
+  status: "Available",
+}
 
 export default function DriversPage() {
   const { currentProfile } = useProfile()
-  const [drivers, setDrivers] = useState<Driver[]>([])
+  const [drivers, setDrivers] = useState<DriverRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
-  
-  // Filters
-  const [statusFilter, setStatusFilter] = useState<DriverStatus | "All">("All")
-  const [sortSafetyScore, setSortSafetyScore] = useState<"asc" | "desc" | "none">("none")
-  
-  // Add driver form
-  const [formData, setFormData] = useState<DriverCreate>({
-    license_number: "",
-    name: "",
-    license_category: "Light Motor Vehicle",
-    license_expiry_date: "",
-    contact_number: "",
-    safety_score: 100.0,
-    status: "Available",
-  })
+  const [statusFilter, setStatusFilter] = useState<string>("All")
+  const [sortSafetyScore, setSortSafetyScore] = useState<"asc" | "desc" | "none">(
+    "none",
+  )
+  const [formData, setFormData] = useState(emptyForm)
 
-  const canAddDriver = getRoutePermission(currentProfile?.role || "", "drivers") === "read_write" || getRoutePermission(currentProfile?.role || "", "drivers") === "admin"
-  const canDeleteDriver = currentProfile?.role === "FleetManager" || currentProfile?.role === "Admin"
+  const canAddDriver = canWrite(currentProfile?.role || "", "drivers")
+  const canDeleteDriver =
+    currentProfile?.role === "Fleet Manager" || currentProfile?.role === "Admin"
 
   useEffect(() => {
     fetchDrivers()
@@ -49,16 +65,9 @@ export default function DriversPage() {
   const fetchDrivers = async () => {
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/fleet/drivers`)
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || `Failed to fetch drivers (${response.status})`)
-      }
-      const data = await response.json()
-      setDrivers(data)
-    } catch (error) {
-      console.error("Failed to fetch drivers:", error)
-      setError(error instanceof Error ? error.message : "Failed to fetch drivers")
+      setDrivers(await apiRequest<DriverRow[]>("/fleet/drivers"))
+    } catch (err) {
+      setError(err instanceof ApiError ? err.detail : "Failed to fetch drivers")
     } finally {
       setLoading(false)
     }
@@ -67,53 +76,28 @@ export default function DriversPage() {
   const handleAddDriver = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!canAddDriver) return
-
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/fleet/drivers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || `Failed to add driver (${response.status})`)
-      }
+      await apiRequest("/fleet/drivers", { method: "POST", body: formData })
       await fetchDrivers()
       setShowAddForm(false)
-      setFormData({
-        license_number: "",
-        name: "",
-        license_category: "Light Motor Vehicle",
-        license_expiry_date: "",
-        contact_number: "",
-        safety_score: 100.0,
-        status: "Available",
-      })
-    } catch (error) {
-      console.error("Failed to add driver:", error)
-      setError(error instanceof Error ? error.message : "Failed to add driver")
+      setFormData(emptyForm)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.detail : "Failed to add driver")
     }
   }
 
   const handleDeleteDriver = async (licenseNum: string) => {
     if (!canDeleteDriver) return
-    
     if (!confirm("Are you sure you want to delete this driver?")) return
-
     try {
       setError(null)
-      const response = await fetch(`${BACKEND_URL}/fleet/drivers/${licenseNum}`, {
+      await apiRequest(`/fleet/drivers/${encodeURIComponent(licenseNum)}`, {
         method: "DELETE",
       })
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || `Failed to delete driver (${response.status})`)
-      }
       await fetchDrivers()
-    } catch (error) {
-      console.error("Failed to delete driver:", error)
-      setError(error instanceof Error ? error.message : "Failed to delete driver")
+    } catch (err) {
+      setError(err instanceof ApiError ? err.detail : "Failed to delete driver")
     }
   }
 
@@ -128,13 +112,13 @@ export default function DriversPage() {
       return 0
     })
 
-  const getStatusColor = (status: DriverStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "Available":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      case "On trip":
+      case "On Trip":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-      case "On leave":
+      case "Off Duty":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
       case "Suspended":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
@@ -155,7 +139,9 @@ export default function DriversPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Drivers Management</h1>
-          <p className="mt-2 text-gray-600">Manage your drivers here.</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Manage your drivers here.
+          </p>
         </div>
         {canAddDriver && (
           <Button onClick={() => setShowAddForm(!showAddForm)}>
@@ -164,13 +150,14 @@ export default function DriversPage() {
         )}
       </div>
 
-      {/* Error Alert */}
       {error && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <span className="mr-2 text-red-600 dark:text-red-400">⚠</span>
-              <p className="text-sm font-medium text-red-900 dark:text-red-100">{error}</p>
+              <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                {error}
+              </p>
             </div>
             <button
               onClick={() => setError(null)}
@@ -182,31 +169,35 @@ export default function DriversPage() {
         </div>
       )}
 
-      {/* Filters */}
       <div className="mb-6 flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
-        <div className="flex-1 min-w-[200px]">
+        <div className="min-w-[200px] flex-1">
           <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">
             Status
           </label>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as DriverStatus | "All")}>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All Statuses</SelectItem>
               <SelectItem value="Available">Available</SelectItem>
-              <SelectItem value="On trip">On trip</SelectItem>
-              <SelectItem value="On leave">On leave</SelectItem>
+              <SelectItem value="On Trip">On Trip</SelectItem>
+              <SelectItem value="Off Duty">Off Duty</SelectItem>
               <SelectItem value="Suspended">Suspended</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex-1 min-w-[200px]">
+        <div className="min-w-[200px] flex-1">
           <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">
             Sort by Safety Score
           </label>
-          <Select value={sortSafetyScore} onValueChange={(value) => setSortSafetyScore(value as "asc" | "desc" | "none")}>
+          <Select
+            value={sortSafetyScore}
+            onValueChange={(value) =>
+              setSortSafetyScore(value as "asc" | "desc" | "none")
+            }
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -219,11 +210,13 @@ export default function DriversPage() {
         </div>
       </div>
 
-      {/* Add Driver Form */}
       {showAddForm && canAddDriver && (
         <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-950">
           <h2 className="mb-4 text-lg font-semibold">Add New Driver</h2>
-          <form onSubmit={handleAddDriver} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <form
+            onSubmit={handleAddDriver}
+            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">
                 License Number *
@@ -231,7 +224,9 @@ export default function DriversPage() {
               <Input
                 required
                 value={formData.license_number}
-                onChange={(e) => setFormData({ ...formData, license_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, license_number: e.target.value })
+                }
                 placeholder="e.g., DL123456789"
               />
             </div>
@@ -243,7 +238,9 @@ export default function DriversPage() {
               <Input
                 required
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="e.g., John Doe"
               />
             </div>
@@ -252,15 +249,22 @@ export default function DriversPage() {
               <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">
                 License Category *
               </label>
-              <Select value={formData.license_category} onValueChange={(value) => setFormData({ ...formData, license_category: value as LicenseCategory })}>
+              <Select
+                value={formData.license_category}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, license_category: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Light Motor Vehicle">Light Motor Vehicle</SelectItem>
-                  <SelectItem value="Heavy Motor Vehicle">Heavy Motor Vehicle</SelectItem>
+                  <SelectItem value="Light Transport">Light Transport</SelectItem>
+                  <SelectItem value="Heavy Transport">Heavy Transport</SelectItem>
                   <SelectItem value="Commercial">Commercial</SelectItem>
-                  <SelectItem value="Hazardous Materials">Hazardous Materials</SelectItem>
+                  <SelectItem value="Hazardous Materials">
+                    Hazardous Materials
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -273,7 +277,12 @@ export default function DriversPage() {
                 required
                 type="date"
                 value={formData.license_expiry_date}
-                onChange={(e) => setFormData({ ...formData, license_expiry_date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    license_expiry_date: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -284,7 +293,9 @@ export default function DriversPage() {
               <Input
                 required
                 value={formData.contact_number}
-                onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, contact_number: e.target.value })
+                }
                 placeholder="e.g., +1234567890"
               />
             </div>
@@ -300,7 +311,12 @@ export default function DriversPage() {
                 max="100"
                 step="0.1"
                 value={formData.safety_score || ""}
-                onChange={(e) => setFormData({ ...formData, safety_score: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    safety_score: parseFloat(e.target.value) || 0,
+                  })
+                }
                 placeholder="0-100"
               />
             </div>
@@ -309,14 +325,19 @@ export default function DriversPage() {
               <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">
                 Status *
               </label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value as DriverStatus })}>
+              <Select
+                value={formData.status}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, status: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="On trip">On trip</SelectItem>
-                  <SelectItem value="On leave">On leave</SelectItem>
+                  <SelectItem value="On Trip">On Trip</SelectItem>
+                  <SelectItem value="Off Duty">Off Duty</SelectItem>
                   <SelectItem value="Suspended">Suspended</SelectItem>
                 </SelectContent>
               </Select>
@@ -325,7 +346,11 @@ export default function DriversPage() {
             <div className="flex items-end md:col-span-2 lg:col-span-3">
               <div className="flex gap-2">
                 <Button type="submit">Add Driver</Button>
-                <Button variant="secondary" type="button" onClick={() => setShowAddForm(false)}>
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                >
                   Cancel
                 </Button>
               </div>
@@ -334,7 +359,6 @@ export default function DriversPage() {
         </div>
       )}
 
-      {/* Drivers Table */}
       <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
         <Table>
           <TableHead>
@@ -365,16 +389,22 @@ export default function DriversPage() {
             ) : (
               filteredAndSortedDrivers.map((driver) => (
                 <TableRow key={driver.license_number}>
-                  <TableCell className="font-medium">{driver.license_number}</TableCell>
+                  <TableCell className="font-medium">
+                    {driver.license_number}
+                  </TableCell>
                   <TableCell>{driver.name}</TableCell>
                   <TableCell>{driver.license_category}</TableCell>
                   <TableCell>{driver.license_expiry_date}</TableCell>
                   <TableCell>{driver.contact_number}</TableCell>
-                  <TableCell className={`font-medium ${getSafetyScoreColor(driver.safety_score)}`}>
-                    {driver.safety_score.toFixed(1)}
+                  <TableCell
+                    className={`font-medium ${getSafetyScoreColor(driver.safety_score)}`}
+                  >
+                    {Number(driver.safety_score).toFixed(1)}
                   </TableCell>
                   <TableCell>
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(driver.status)}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(driver.status)}`}
+                    >
                       {driver.status}
                     </span>
                   </TableCell>
@@ -382,7 +412,9 @@ export default function DriversPage() {
                     <TableCell>
                       <Button
                         variant="destructive"
-                        onClick={() => handleDeleteDriver(driver.license_number)}
+                        onClick={() =>
+                          handleDeleteDriver(driver.license_number)
+                        }
                       >
                         Delete
                       </Button>

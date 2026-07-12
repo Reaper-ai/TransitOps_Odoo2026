@@ -189,6 +189,9 @@ class SQLiteRepository(BaseRepository):
                   log_data['start_date'], log_data.get('end_date')))
             conn.commit()
             log_data['id'] = cursor.lastrowid
+            log_data['status'] = 'Open'
+            if 'end_date' not in log_data:
+                log_data['end_date'] = None
             return log_data
 
     def update_maintenance_log(self, log_id: int, log_data: Dict[str, Any]) -> bool:

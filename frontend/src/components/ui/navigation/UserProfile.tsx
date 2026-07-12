@@ -8,6 +8,7 @@ import { DropdownUserProfile } from "./DropdownUserProfile"
 
 export function UserProfile() {
   const { currentProfile } = useProfile()
+  if (!currentProfile) return null
 
   return (
     <DropdownUserProfile>
@@ -26,8 +27,8 @@ export function UserProfile() {
           >
             {currentProfile.initials}
           </span>
-          <span className="text-left font-semibold text-gray-900 dark:text-gray-50">
-            {currentProfile.name}
+          <span className="truncate text-left text-sm font-semibold text-gray-900 dark:text-gray-50">
+            {currentProfile.role}
           </span>
         </span>
         <ChevronsUpDown
@@ -38,4 +39,3 @@ export function UserProfile() {
     </DropdownUserProfile>
   )
 }
-

@@ -1,8 +1,15 @@
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+/** Analytics reuses dashboard KPIs for now */
 export default function AnalyticsPage() {
+  const router = useRouter()
+  useEffect(() => {
+    router.replace("/dashboard")
+  }, [router])
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Analytics</h1>
-      <p className="mt-2 text-gray-600">View analytics and reports here.</p>
-    </div>
+    <div className="p-6 text-sm text-gray-500">Redirecting to Dashboard...</div>
   )
 }
