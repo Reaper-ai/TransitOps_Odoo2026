@@ -7,7 +7,7 @@ TransitOps is a centralized, role-based transport operations platform designed t
 ### 👥 The Team
 
 * **Gaurav** — Backend Engineering & Data Infrastructure Architecture
-* **Ashmeet** — Third-Party Integrations & Endpoint Connections
+* **Ashmeet** — Integrations & Endpoint Connections
 * **Agrim** — Frontend User Interfaces & Client State Management
 
 ---
