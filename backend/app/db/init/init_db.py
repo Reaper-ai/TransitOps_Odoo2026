@@ -23,7 +23,7 @@ def build_schema():
     CREATE TABLE IF NOT EXISTS users (
         email TEXT PRIMARY KEY,
         password_hash TEXT NOT NULL,
-        role TEXT CHECK(role IN ('Fleet Manager', 'Driver', 'Safety Officer', 'Financial Analyst')) NOT NULL
+        role TEXT CHECK(role IN ('Admin', 'Fleet Manager', 'Driver', 'Safety Officer', 'Financial Analyst')) NOT NULL
     );
     """)
     

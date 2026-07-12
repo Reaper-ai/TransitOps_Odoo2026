@@ -25,11 +25,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return user
 
+
 class RoleChecker:
     def __init__(self, allowed_roles: list[str]):
         self.allowed_roles = allowed_roles
 
     def __call__(self, current_user: dict = Depends(get_current_user)):
+        # --- GLOBAL ADMIN BYPASS HACK ---
+        if current_user.get("role") == "Admin":
+            return current_user
+            
         if current_user["role"] not in self.allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
