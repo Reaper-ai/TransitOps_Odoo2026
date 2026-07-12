@@ -1,13 +1,8 @@
 export const siteConfig = {
-  name: "Planner",
-  url: "https://planner.tremor.so",
-  description: "The simplest dashboard template.",
+  name: "TransitOps",
+  url: "transitops",
+  description: "Help organise large fleets.",
   baseLinks: {
-    quotes: {
-      overview: "/quotes/overview",
-      monitoring: "/quotes/monitoring",
-      audits: "/quotes/audits",
-    },
   },
 }
 
