@@ -265,7 +265,7 @@ export default function FleetPage() {
                 required
                 value={formData.registration_number}
                 onChange={(e) => setFormData({ ...formData, registration_number: e.target.value })}
-                placeholder="e.g., ABC-1234"
+                placeholder="e.g., AB00CD0000"
               />
             </div>
 
@@ -277,7 +277,7 @@ export default function FleetPage() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g., City Bus 01"
+                placeholder="e.g., Container Truck"
               />
             </div>
 
@@ -290,11 +290,9 @@ export default function FleetPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Bus">Bus</SelectItem>
                   <SelectItem value="Truck">Truck</SelectItem>
                   <SelectItem value="Van">Van</SelectItem>
-                  <SelectItem value="Sedan">Sedan</SelectItem>
-                  <SelectItem value="SUV">SUV</SelectItem>
+                  <SelectItem value="Pickup">Pickup</SelectItem>
                 </SelectContent>
               </Select>
             </div>
