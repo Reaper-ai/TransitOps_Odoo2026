@@ -2,7 +2,7 @@
 import os
 import sqlite3
 from typing import List, Dict, Any, Optional
-from base import BaseRepository
+from .base import BaseRepository
 
 from dotenv import load_dotenv
 # Load the file directly from the execution path context
