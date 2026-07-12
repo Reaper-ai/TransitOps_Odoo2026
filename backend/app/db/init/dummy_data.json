@@ -1,0 +1,32 @@
+{
+  "users": [
+    { "email": "manager@transitops.com", "password_hash": "$2b$12$xyz...", "role": "Fleet Manager" },
+    { "email": "safety@transitops.com", "password_hash": "$2b$12$abc...", "role": "Safety Officer" },
+    { "email": "finance@transitops.com", "password_hash": "$2b$12$qwe...", "role": "Financial Analyst" }
+  ],
+  "destinations": [
+    { "name": "Warehouse Alpha", "region": "North" },
+    { "name": "Distribution Hub Beta", "region": "East" },
+    { "name": "Port Logistics Gamma", "region": "South" }
+  ],
+  "vehicles": [
+    { "registration_number": "VAN-05", "model": "Ford Transit", "type": "Van", "max_load_capacity": 500.0, "odometer": 12500.0, "acquisition_cost": 35000.0, "status": "Available" },
+    { "registration_number": "TRK-12", "model": "Volvo FH16", "type": "Heavy Truck", "max_load_capacity": 15000.0, "odometer": 89000.0, "acquisition_cost": 120000.0, "status": "On Trip" },
+    { "registration_number": "VAN-09", "model": "Mercedes Sprinter", "type": "Van", "max_load_capacity": 800.0, "odometer": 45000.0, "acquisition_cost": 42000.0, "status": "In Shop" }
+  ],
+  "drivers": [
+    { "license_number": "DL-987654", "name": "Alex Morgan", "license_category": "Commercial", "license_expiry_date": "2027-12-15", "contact_number": "+15550199", "safety_score": 95.5, "status": "Available" },
+    { "license_number": "DL-123456", "name": "Bob Jenkins", "license_category": "Heavy Transport", "license_expiry_date": "2026-11-20", "contact_number": "+15550188", "safety_score": 88.0, "status": "On Trip" },
+    { "license_number": "DL-445566", "name": "Charlie Smith", "license_category": "Commercial", "license_expiry_date": "2025-01-01", "contact_number": "+15550122", "safety_score": 72.0, "status": "Suspended" }
+  ],
+  "trips": [
+    { "id": 1, "source_name": "Warehouse Alpha", "destination_name": "Distribution Hub Beta", "vehicle_reg": "TRK-12", "driver_license": "DL-123456", "cargo_weight": 12000.0, "planned_distance": 340.5, "revenue": 2500.0, "status": "Dispatched" }
+  ],
+  "maintenance_logs": [
+    { "id": 1, "vehicle_reg": "VAN-09", "description": "Scheduled Engine Oil & Brake Pad Replacement", "cost": 450.0, "start_date": "2026-07-10", "end_date": null, "status": "Open" }
+  ],
+  "fuel_expenses": [
+    { "id": 1, "trip_id": 1, "type": "Fuel", "liters": 60.0, "cost": 90.0, "date": "2026-07-11" },
+    { "id": 2, "trip_id": 1, "type": "Toll", "liters": null, "cost": 35.0, "date": "2026-07-11" }
+  ]
+}
