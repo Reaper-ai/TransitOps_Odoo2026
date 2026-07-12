@@ -40,7 +40,7 @@ def register_user(payload: UserCreate):
     (Note: You can protect this endpoint with Dependencies if only an admin/manager should create users)
     """
     # 1. Enforce that role satisfies business bounds[cite: 1]
-    allowed_roles = {'Fleet Manager', 'Driver', 'Safety Officer', 'Financial Analyst'}
+    allowed_roles = {'Admin','Fleet Manager', 'Driver', 'Safety Officer', 'Financial Analyst'}
     if payload.role not in allowed_roles:
         raise HTTPException(
             status_code=400, 

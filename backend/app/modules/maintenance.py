@@ -18,7 +18,7 @@ def open_workshop_work_order(payload: MaintenanceCreate, current_user: dict = De
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found.")
     if vehicle["status"] == "On Trip":
-        raise HTTPException(status_code=400, detail="Cannot pull an active vehicle off transit into maintenance[cite: 1].")
+        raise HTTPException(status_code=400, detail="Cannot pull an active vehicle off transit into maintenance.")
         
     # 1. Log Maintenance File Entry
     created_log = db.create_maintenance_log(payload.model_dump())
@@ -46,4 +46,4 @@ def close_workshop_work_order(log_id: int, payload: MaintenanceClose, current_us
     # 2. Release Vehicle back to Available Pool[cite: 1]
     db.update_vehicle_status(target_log["vehicle_reg"], "Available")
     
-    return {"message": "Workshop operations finished. Vehicle returned to fleet[cite: 1]."}
+    return {"message": "Workshop operations finished. Vehicle returned to fleet."}

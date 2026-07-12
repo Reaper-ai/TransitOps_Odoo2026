@@ -17,7 +17,7 @@ def get_vehicles(current_user: dict = Depends(get_current_user)):
 @router.post("/vehicles", response_model=VehicleResponse, status_code=status.HTTP_201_CREATED)
 def create_new_vehicle(payload: VehicleCreate, current_user: dict = Depends(RoleChecker(["Fleet Manager"]))):
     if db.get_vehicle_by_reg(payload.registration_number):
-        raise HTTPException(status_code=400, detail="Vehicle Registration Number must be unique[cite: 1].")
+        raise HTTPException(status_code=400, detail="Vehicle Registration Number must be unique.")
     return db.create_vehicle(payload.model_dump())
 
 @router.get("/vehicles/{reg_num}", response_model=VehicleResponse)

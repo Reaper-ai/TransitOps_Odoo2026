@@ -31,7 +31,6 @@ class RoleChecker:
         self.allowed_roles = allowed_roles
 
     def __call__(self, current_user: dict = Depends(get_current_user)):
-        # --- GLOBAL ADMIN BYPASS HACK ---
         if current_user.get("role") == "Admin":
             return current_user
             
