@@ -21,55 +21,64 @@ import * as React from "react"
 import { Logo } from "../../../../public/Logo"
 import { UserProfile } from "./UserProfile"
 import { useProfile } from "@/lib/ProfileContext"
+import { hasRouteAccess } from "@/lib/rbacConfig"
 
 const navigation2 = [
   {
     name: "Dashboard",
-    href: "#",
+    href: "/dashboard",
     icon: Gauge,
-    active: false
+    active: false,
+    routeKey: "dashboard" as const
   },
   {
     name: "Fleet",
-    href: "#",
+    href: "/fleet",
     icon: Truck,
-    active: false
+    active: false,
+    routeKey: "fleet" as const
   },
   {
     name: "Drivers",
-    href: "#",
+    href: "/drivers",
     icon: PersonStanding,
-    active: false
+    active: false,
+    routeKey: "drivers" as const
   },
   {
     name: "Trips",
-    href: "#",
+    href: "/trips",
     icon: Route,
-    active: false
+    active: false,
+    routeKey: "trips" as const
   },
   {
     name: "Maintenance",
-    href: "#",
+    href: "/maintenance",
     icon: Wrench,
-    active: false
+    active: false,
+    routeKey: "maintenance" as const
   },
   {
     name: "Fuel and Expenses",
-    href: "#",
+    href: "/fuel-and-expenses",
     icon: Fuel,
-    active: false
+    active: false,
+    routeKey: "fuelAndExpenses" as const
   },
   {
     name: "Analytics",
-    href: "#",
+    href: "/analytics",
     icon: ChartColumn,
-    active: false
+    active: false,
+    routeKey: "analytics" as const
   },
   {
     name: "Settings",
-    href: "#",
+    href: "/settings",
     icon: Settings,
-    active: false
+    active: false,
+    routeKey: "settings" as const
   },
 ] as const
 
@@ -77,22 +86,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { currentProfile } = useProfile()
 
   const filteredNavigation = React.useMemo(() => {
-    switch (currentProfile.role) {
-      case "Admin":
-        return navigation2
-      case "Manager":
-        return navigation2.filter((item) => item.name !== "Settings")
-      case "Auditor":
-        return navigation2.filter((item) =>
-          ["Dashboard", "Analytics", "Settings"].includes(item.name)
-        )
-      case "Viewer":
-        return navigation2.filter((item) =>
-          ["Dashboard", "Trips"].includes(item.name)
-        )
-      default:
-        return navigation2
-    }
+    return navigation2.filter((item) => 
+      hasRouteAccess(currentProfile.role, item.routeKey)
+    )
   }, [currentProfile.role])
 
   return (
@@ -119,7 +115,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {filteredNavigation.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarLink
-                    href="#"
+                    href={item.href}
                     isActive={item.active}
                     icon={item.icon}
                   >

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect } from "react"
+import { getAccessibleRoutes, getRoutePermission } from "./rbacConfig"
 
 export type Role = "Admin" | "Manager" | "Auditor" | "Viewer"
 
@@ -15,31 +16,38 @@ export interface Profile {
 export const PROFILES: Profile[] = [
   {
     id: "1",
-    name: "Emma Stone",
-    email: "emma.stone@transitops.com",
-    initials: "ES",
+    name: "Admin User",
+    email: "admin@transitops.com",
+    initials: "A",
     role: "Admin",
   },
   {
     id: "2",
-    name: "Harry Granger",
-    email: "harry.granger@transitops.com",
-    initials: "HG",
-    role: "Manager",
+    name: "Fleet Manager",
+    email: "fleetmanager@transitops.com",
+    initials: "FM",
+    role: "FleetManager",
   },
   {
     id: "3",
-    name: "Hermione Weasley",
-    email: "hermione.weasley@transitops.com",
-    initials: "HW",
-    role: "Auditor",
+    name: "Dispatcher",
+    email: "dispatcher@transitops.com",
+    initials: "D",
+    role: "Dispatcher",
   },
   {
     id: "4",
-    name: "Charlie Anuk",
-    email: "charlie.anuk@transitops.com",
-    initials: "CA",
-    role: "Viewer",
+    name: "Safety Officer",
+    email: "safety.officer@transitops.com",
+    initials: "SO",
+    role: "SafetyOfficer",
+  },
+  {
+    id: "5",
+    name: "Financial Analyst",
+    email: "financial.analyst@transitops.com",
+    initials: "FA",
+    role: "FinancialAnalyst",
   },
 ]
 
